@@ -68,7 +68,8 @@ public class Player : MonoBehaviour
             {
                 x = MoveSpeed;
             }
-            else if (!LeftChecker.IsCollidingWith("Wall"))
+
+            if (move < 0 && !LeftChecker.IsCollidingWith("Wall"))
             {
                 x = -MoveSpeed;
             }
@@ -84,4 +85,13 @@ public class Player : MonoBehaviour
         //}
     }
 
+    void OnGUI()
+    {
+        //var screenPos = Camera.main.WorldToScreenPoint(this.transform.position);
+
+        //var screenHeight = Screen.height;
+
+        //GUI.Label(new Rect(screenPos.x + 15, screenHeight - screenPos.y - 10, 100, 50), RightChecker.IsCollidingWith("Wall").ToString() );
+        //GUI.Label(new Rect(screenPos.x - 50, screenHeight - screenPos.y - 10, 100, 50), LeftChecker.IsCollidingWith("Wall").ToString());
+    }
 }
