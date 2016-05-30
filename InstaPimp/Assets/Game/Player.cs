@@ -14,6 +14,9 @@ public class Player : MonoBehaviour
     public CollisionChecker TopChecker;
     public CollisionChecker BottomChecker;
 
+    public MeshRenderer Body;
+    public MeshRenderer Railgun;
+
     PlayerActions playerActions;
     new Rigidbody rigidbody;
     public bool isGrounded = false;
@@ -22,6 +25,23 @@ public class Player : MonoBehaviour
     Vector2 aim;
     bool shoot;
 
+    PlayerInfo playerInfo;
+    public PlayerInfo PlayerInfo
+    {
+        get
+        {
+            return playerInfo;
+        }
+        set
+        {
+            playerInfo = value;
+            Body.material = playerInfo.Material;
+            Railgun.material = playerInfo.Material;
+
+            playerActions = playerInfo.PlayerActions;
+        }
+    }
+
     void Awake()
     {
         rigidbody = this.GetComponent<Rigidbody>();
@@ -29,7 +49,6 @@ public class Player : MonoBehaviour
 
     void Start()
     {
-        playerActions = PlayerActions.CreateWithDefaultBindings();
     }
 
     void Update()

@@ -370,6 +370,8 @@ MonoBehaviour:
   Nozzle: {fileID: 429004}
   TopChecker: {fileID: 11458310}
   BottomChecker: {fileID: 11459100}
+  Body: {fileID: 2319410}
+  Railgun: {fileID: 2399364}
   isGrounded: 0
 --- !u!114 &11458310
 MonoBehaviour:

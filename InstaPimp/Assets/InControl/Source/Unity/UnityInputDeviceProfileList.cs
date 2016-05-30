@@ -19,6 +19,7 @@ namespace InControl
 			"InControl.BuffaloClassicAmazonProfile",
 			"InControl.BuffaloClassicMacProfile",
 			"InControl.BuffaloClassicWinProfile",
+			"InControl.Chillstream",
 			"InControl.ExecutionerXProfile",
 			"InControl.GameCubeWinProfile",
 			"InControl.GameStickLinuxProfile",
