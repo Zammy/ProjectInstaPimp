@@ -43,18 +43,19 @@ public class PlayerActions : PlayerActionSet
     {
         var playerActions = new PlayerActions();
 
-        playerActions.Fire.AddDefaultBinding(InputControlType.Action3);
-        playerActions.Fire.AddDefaultBinding(Mouse.LeftButton);
+        playerActions.Fire.AddDefaultBinding(InputControlType.RightTrigger);
+        //playerActions.Fire.AddDefaultBinding(Mouse.LeftButton);
 
-        playerActions.Jump.AddDefaultBinding(Key.W);
-        playerActions.Jump.AddDefaultBinding(Key.Space);
-        playerActions.Jump.AddDefaultBinding(InputControlType.Action1);
+        //playerActions.Jump.AddDefaultBinding(Key.W);
+        //playerActions.Jump.AddDefaultBinding(Key.Space);
+        playerActions.Jump.AddDefaultBinding(InputControlType.DPadUp);
+        playerActions.Jump.AddDefaultBinding(InputControlType.LeftTrigger);
 
         //move
-        playerActions.MoveLeft.AddDefaultBinding(Key.A);
-        playerActions.MoveRight.AddDefaultBinding(Key.D);
-        playerActions.MoveLeft.AddDefaultBinding(Key.LeftArrow);
-        playerActions.MoveRight.AddDefaultBinding(Key.RightArrow);
+        //playerActions.MoveLeft.AddDefaultBinding(Key.A);
+        //playerActions.MoveRight.AddDefaultBinding(Key.D);
+        //playerActions.MoveLeft.AddDefaultBinding(Key.LeftArrow);
+        //playerActions.MoveRight.AddDefaultBinding(Key.RightArrow);
 
         playerActions.MoveLeft.AddDefaultBinding(InputControlType.LeftStickLeft);
         playerActions.MoveRight.AddDefaultBinding(InputControlType.LeftStickRight);
@@ -68,10 +69,10 @@ public class PlayerActions : PlayerActionSet
         playerActions.AimUp.AddDefaultBinding(InputControlType.RightStickUp);
         playerActions.AimDown.AddDefaultBinding(InputControlType.RightStickDown);
 
-        playerActions.AimUp.AddDefaultBinding(Mouse.PositiveY);
-        playerActions.AimDown.AddDefaultBinding(Mouse.NegativeY);
-        playerActions.AimLeft.AddDefaultBinding(Mouse.NegativeX);
-        playerActions.AimRight.AddDefaultBinding(Mouse.PositiveX);
+        //playerActions.AimUp.AddDefaultBinding(Mouse.PositiveY);
+        //playerActions.AimDown.AddDefaultBinding(Mouse.NegativeY);
+        //playerActions.AimLeft.AddDefaultBinding(Mouse.NegativeX);
+        //playerActions.AimRight.AddDefaultBinding(Mouse.PositiveX);
 
         playerActions.ListenOptions.IncludeUnknownControllers = true;
         playerActions.ListenOptions.MaxAllowedBindings = 4;

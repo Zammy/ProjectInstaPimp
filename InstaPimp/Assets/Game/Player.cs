@@ -8,6 +8,8 @@ public class Player : MonoBehaviour
     public float MoveSpeed = 8f;
 
     public Transform Aim;
+    public GameObject ProjPrefab;
+    public Transform Nozzle;
 
     public CollisionChecker TopChecker;
     public CollisionChecker BottomChecker;
@@ -18,6 +20,7 @@ public class Player : MonoBehaviour
     float jumpUntil = float.MinValue;
     float move;
     Vector2 aim;
+    bool shoot;
 
     void Awake()
     {
@@ -45,12 +48,20 @@ public class Player : MonoBehaviour
             aim = newAim;
         }
 
+        shoot = playerActions.Fire.WasPressed;
     }
 
     void FixedUpdate()
     {
         MovementUpdate();
         AimUpdate();
+        
+        if (shoot)
+        {
+            var projGo = (GameObject)Instantiate(ProjPrefab, Nozzle.position, Nozzle.rotation);
+            RailShot railShot = projGo.GetComponent<RailShot>();
+            railShot.Shoot(Nozzle);
+        }
     }
 
     private void MovementUpdate()
