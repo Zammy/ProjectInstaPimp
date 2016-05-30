@@ -7,18 +7,17 @@ public class Player : MonoBehaviour
     public float JumpTime = .4f;
     public float MoveSpeed = 8f;
 
+    public Transform Aim;
+
     public CollisionChecker TopChecker;
     public CollisionChecker BottomChecker;
-    public CollisionChecker LeftChecker;
-    public CollisionChecker RightChecker;
 
     PlayerActions playerActions;
     new Rigidbody rigidbody;
     public bool isGrounded = false;
     float jumpUntil = float.MinValue;
     float move;
-
-    //const float OUTSET = 0.001f;
+    Vector2 aim;
 
     void Awake()
     {
@@ -39,13 +38,26 @@ public class Player : MonoBehaviour
             jumpUntil = Time.time + JumpTime;
         }
         move = playerActions.Move.Value;
+
+        var newAim = new Vector2(playerActions.Aim.X, playerActions.Aim.Y);
+        if (newAim.sqrMagnitude > 0.5f)
+        {
+            aim = newAim;
+        }
+
     }
 
     void FixedUpdate()
     {
+        MovementUpdate();
+        AimUpdate();
+    }
+
+    private void MovementUpdate()
+    {
         float x = 0;
         float y = rigidbody.velocity.y;
-        
+
         if (Time.time < jumpUntil)
         {
             if (TopChecker.IsCollidingWith("Wall"))
@@ -57,32 +69,31 @@ public class Player : MonoBehaviour
                 y = JumpSpeed;
             }
         }
-        else if (!isGrounded) 
+        else if (!isGrounded)
         {
             y = -JumpSpeed; //gravity
         }
 
         if (Mathf.Abs(move) > 0.15f)
         {
-            if (move > 0 && !RightChecker.IsCollidingWith("Wall"))
+            if (move > 0)
             {
                 x = MoveSpeed;
             }
 
-            if (move < 0 && !LeftChecker.IsCollidingWith("Wall"))
+            if (move < 0)
             {
                 x = -MoveSpeed;
             }
         }
 
         rigidbody.velocity = new Vector3(x, y, 0);
+    }
 
-        //float diff = Mathf.Abs(transform.position.y - Mathf.RoundToInt(transform.position.y));
-        //if (isGrounded && diff < OUTSET)
-        //{
-        //    Debug.Log("Outset diff:" + diff);
-        //    transform.position = new Vector3(transform.position.x, transform.position.y + OUTSET, 0);
-        //}
+    void AimUpdate()
+    {
+        Vector3 aimVec = new Vector3(aim.x, aim.y, 0).normalized;
+        this.Aim.xLookAt(transform.position + aimVec);
     }
 
     void OnGUI()
