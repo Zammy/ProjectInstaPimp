@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 public enum PlayState
 {
@@ -23,11 +24,16 @@ public class GameController : SingletonBehavior<GameController>
     public Transform[] StartingPoints;
     public Transform RailShotsBase;
 
+    public Transform ScoreBase;
+    public GameObject ScoreSheetPrefab;
+
+    public Material[] PlayerColors;
+
     private int lastFrame;
     private int frameCounter = 0;
 
     private List<Player> players;
-
+    private int[] playerScores;
 
 
     private PlayState state;
@@ -54,9 +60,17 @@ public class GameController : SingletonBehavior<GameController>
                         var player = players[i];
                         player.SetShootFrames(shotFrames);
                         player.ResetInputIndex();
+                        player.IsDead = false;
+                        player.transform.position = StartingPoints[i].position;
                     }
 
                     lastFrame = shotFrames[shotFrames.Count - 1];
+
+                    foreach (Transform child in RailShotsBase)
+                    {
+                        Destroy(child.gameObject);
+                    }
+
                     break;
                 case PlayState.Play:
                     frameCounter = 0;
@@ -76,12 +90,7 @@ public class GameController : SingletonBehavior<GameController>
                 case PlayState.Resolve:
                     break;
                 case PlayState.PostResolve:
-                    //TODO: add showing of result
-                    //TODO: add delay before destroying rails
-                    foreach (Transform child in RailShotsBase)
-                    {
-                        Destroy(child.gameObject);
-                    }
+                    StartCoroutine(ShowResult());
                     break;
                 default:
                     break;
@@ -89,23 +98,32 @@ public class GameController : SingletonBehavior<GameController>
         }
     }
 
+    public void PlayerKilledPlayer(Player player1, Player player2)
+    {
+        Debug.LogFormat("{0} killed {1}", player1, player2);
+
+        int playerIndex = players.IndexOf(player1);
+        playerScores[playerIndex]++;
+    }
+
     protected override void Awake()
     {
         base.Awake();
 
 #if UNITY_EDITOR
-        Debug.Log(InputManager.ActiveDevice);
-
         if (GameInfo.Players == null)
         {
-            GameInfo.Players = new List<PlayerInfo>()
+            GameInfo.Players = new List<PlayerInfo>();
+
+            for (int i = 0; i < InputManager.Devices.Count; i++)
             {
-                new PlayerInfo()
+                GameInfo.Players.Add(new PlayerInfo()
                 {
                     PlayerActions = PlayerActions.CreateWithDefaultBindings(),
-                    Device = InputManager.Devices[0]
-                }
-            };
+                    Device = InputManager.Devices[i],
+                    Material = PlayerColors[i]
+                });
+            }
         }
 #endif
         players = new List<Player>();
@@ -120,11 +138,16 @@ public class GameController : SingletonBehavior<GameController>
             var player = playerGo.GetComponent<Player>();
             player.PlayerInfo = playerInfo;
             players.Add(player);
+
+            var scoreSheet = (GameObject)Instantiate(ScoreSheetPrefab);
+            scoreSheet.transform.parent = ScoreBase;
+            scoreSheet.transform.localScale = Vector3.one;
         }
 
         lastFrame = shotFrames[shotFrames.Count - 1];
-    }
 
+        playerScores = new int[players.Count];
+    }
 
     void Start()
     {
@@ -187,4 +210,27 @@ public class GameController : SingletonBehavior<GameController>
 
         State = PlayState.Resolve;
     }
+
+    IEnumerator ShowResult()
+    {
+        yield return new WaitForSeconds(1f);
+
+        this.ScoreBase.gameObject.SetActive(true);
+
+        for (int i = 0; i < players.Count; i++)
+        {
+            var playerColor = players[i].PlayerInfo.Material.color;
+            int score = playerScores[i];
+
+            var scoreSheet = ScoreBase.GetChild(i).GetComponent<ScoreSheet>();
+            scoreSheet.SetKills(playerColor, score);
+        }
+
+        yield return new WaitForSeconds(5f);
+
+        this.ScoreBase.gameObject.SetActive(false);
+
+        this.State = PlayState.PrePlay;
+    }
+
 }

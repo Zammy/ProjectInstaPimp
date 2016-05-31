@@ -25,7 +25,7 @@ GameObject:
   - 4: {fileID: 454222}
   m_Layer: 0
   m_Name: Aim
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -60,7 +60,7 @@ GameObject:
   - 23: {fileID: 2319410}
   m_Layer: 0
   m_Name: Body
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -126,7 +126,7 @@ GameObject:
   - 4: {fileID: 401566}
   m_Layer: 0
   m_Name: Colliders
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -372,7 +372,6 @@ MonoBehaviour:
   BottomChecker: {fileID: 11459100}
   Body: {fileID: 2319410}
   Railgun: {fileID: 2399364}
-  isGrounded: 0
 --- !u!114 &11458310
 MonoBehaviour:
   m_ObjectHideFlags: 1

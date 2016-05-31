@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System;
+using System.Collections;
+using DG.Tweening;
 
 public class Player : MonoBehaviour
 {
@@ -25,9 +28,8 @@ public class Player : MonoBehaviour
     int frameCounter = 0;
 
     Transform railShotsBase;
-
     GameController gameController;
-   
+
     PlayerInfo playerInfo;
     public PlayerInfo PlayerInfo
     {
@@ -40,6 +42,28 @@ public class Player : MonoBehaviour
             playerInfo = value;
             Body.material = playerInfo.Material;
             Railgun.material = playerInfo.Material;
+        }
+    }
+
+    private bool isDead = false;
+    public bool IsDead
+    {
+        get
+        {
+            return isDead;
+        }
+        set
+        {
+            isDead = value;
+
+            if (isDead)
+            {
+                Die();
+            }
+            else
+            {
+                Undie();
+            }
         }
     }
 
@@ -68,6 +92,9 @@ public class Player : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (IsDead)
+            return;
+
         PlayState state = PlayState.Selection;
         if (gameController != null)
         {
@@ -82,7 +109,7 @@ public class Player : MonoBehaviour
         }
 
         if (state == PlayState.Play
-            || state == PlayState.Selection )
+            || state == PlayState.Selection)
         {
             input[frameCounter].Take(playerInfo.PlayerActions);
         }
@@ -107,7 +134,7 @@ public class Player : MonoBehaviour
         }
 
         MovementUpdate(currentInput.Move);
-        
+
         if (currentInput.FireWasPressed)
         {
             //Debug.Log("Shoot !!!!!!!!!!!!!!");
@@ -164,7 +191,7 @@ public class Player : MonoBehaviour
         var projGo = (GameObject)Instantiate(ProjPrefab, Nozzle.position, Nozzle.rotation);
         projGo.transform.parent = railShotsBase;
         RailShot railShot = projGo.GetComponent<RailShot>();
-        railShot.Material = playerInfo.Material;
+        railShot.Player = this;
         if (state == PlayState.Play)
         {
             railShot.Mark(Nozzle);
@@ -174,7 +201,21 @@ public class Player : MonoBehaviour
             railShot.Shoot(Nozzle);
         }
     }
+    
+    void Die()
+    {
+        this.Body.GetComponent<BoxCollider>().enabled = false;
+        this.Body.material.DOFade(0, 1f);
+        this.Railgun.material.DOFade(0, 1f);
+    }
 
+    void Undie()
+    {
+        this.Body.GetComponent<BoxCollider>().enabled = true;
+        this.Body.material.DOFade(1f, 0f);
+        this.Railgun.material.DOFade(1f, 0f);
+    }
+    
     void OnGUI()
     {
         //var screenPos = Camera.main.WorldToScreenPoint(this.transform.position);

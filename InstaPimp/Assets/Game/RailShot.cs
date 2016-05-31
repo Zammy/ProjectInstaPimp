@@ -1,14 +1,23 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections;
+using UnityEngine;
+using DG.Tweening;
 
 public class RailShot : MonoBehaviour
 {
     public LineRenderer LineRenderer;
 
-    public Material Material
+    private Player player;
+    public Player Player
     {
+        get
+        {
+            return player;
+        }
         set
         {
-            LineRenderer.material = value;
+            player = value;
+            LineRenderer.material = player.PlayerInfo.Material;
         }
     }
 
@@ -27,9 +36,30 @@ public class RailShot : MonoBehaviour
         if (!Physics.Raycast(nozzle.position, nozzle.up, out hit))
         {
             Debug.LogError("Raycasted and hit nothing!");
+            return;
         }
 
         LineRenderer.SetPosition(0, nozzle.position);
         LineRenderer.SetPosition(1, hit.point);
+
+        if (hit.collider.tag == "Player")
+        {
+            var player = hit.collider.transform.parent.GetComponent<Player>();
+            if (!player.IsDead)
+            {
+                player.IsDead = true;
+                GameController.Instance.PlayerKilledPlayer(this.Player, player);
+            }
+        }
+
+        StartCoroutine(Die());
+    }
+
+    private IEnumerator Die()
+    {
+        yield return new WaitForSeconds(1.5f);
+        yield return this.LineRenderer.material.DOFade(0, 0.4f).WaitForCompletion();
+
+        Destroy(this.gameObject);
     }
 }
