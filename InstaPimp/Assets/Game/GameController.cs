@@ -11,9 +11,8 @@ public enum PlayState
     Selection,
     PrePlay,
     Play,
-    PreResolve,
-    Resolve,
-    PostResolve
+    Shoot,
+    PostPlay
 }
 
 public class GameController : SingletonBehavior<GameController>
@@ -29,12 +28,14 @@ public class GameController : SingletonBehavior<GameController>
 
     public Material[] PlayerColors;
 
-    private int lastFrame;
-    private int frameCounter = 0;
+    public float ShootPauseTime = 1.5f;
+    public float ShootInterval = 2f;
 
     private List<Player> players;
     private int[] playerScores;
 
+    float nextShootTime = float.MinValue;
+    
 
     private PlayState state;
     public PlayState State
@@ -53,18 +54,12 @@ public class GameController : SingletonBehavior<GameController>
                 case PlayState.PrePlay:
                     StartCoroutine(GameStarted());
 
-                    var shotFrames = GameInfo.ShootFrames;
-
                     for (int i = 0; i < players.Count; i++)
                     {
                         var player = players[i];
-                        player.SetShootFrames(shotFrames);
-                        player.ResetInputIndex();
                         player.IsDead = false;
                         player.transform.position = StartingPoints[i].position;
                     }
-
-                    lastFrame = shotFrames[shotFrames.Count - 1];
 
                     foreach (Transform child in RailShotsBase)
                     {
@@ -73,23 +68,19 @@ public class GameController : SingletonBehavior<GameController>
 
                     break;
                 case PlayState.Play:
-                    frameCounter = 0;
+                    nextShootTime = Time.fixedTime + ShootInterval;
                     break;
-                case PlayState.PreResolve:
-                    StartCoroutine(DoPreResolve());
-
-                    for (int i = 0; i < players.Count; i++)
+                case PlayState.Shoot:
+                    foreach (var player in players)
                     {
-                        var player = players[i];
-                        player.transform.position = StartingPoints[i].position;
-                        player.ResetInputIndex();
+                        player.Shoot();
                     }
 
-                    frameCounter = 0;
+                    DOTween.Sequence()
+                        .AppendInterval(ShootPauseTime)
+                        .AppendCallback(() => this.State = PlayState.Play);
                     break;
-                case PlayState.Resolve:
-                    break;
-                case PlayState.PostResolve:
+                case PlayState.PostPlay:
                     StartCoroutine(ShowResult());
                     break;
                 default:
@@ -104,6 +95,16 @@ public class GameController : SingletonBehavior<GameController>
 
         int playerIndex = players.IndexOf(player1);
         playerScores[playerIndex]++;
+
+        int alivePlayers = 0;
+        foreach (var player in players)
+        {
+            if (!player.IsDead)
+                alivePlayers++;
+        }
+
+        if (alivePlayers <= 1)
+            this.State = PlayState.PostPlay;
     }
 
     protected override void Awake()
@@ -128,8 +129,6 @@ public class GameController : SingletonBehavior<GameController>
 #endif
         players = new List<Player>();
 
-        var shotFrames = GameInfo.ShootFrames;
-
         for (int i = 0; i < GameInfo.Players.Count; i++)
         {
             var playerInfo = GameInfo.Players[i];
@@ -144,8 +143,6 @@ public class GameController : SingletonBehavior<GameController>
             scoreSheet.transform.localScale = Vector3.one;
         }
 
-        lastFrame = shotFrames[shotFrames.Count - 1];
-
         playerScores = new int[players.Count];
     }
 
@@ -157,20 +154,16 @@ public class GameController : SingletonBehavior<GameController>
     void FixedUpdate()
     {
         if (State == PlayState.PrePlay
-           || State == PlayState.PreResolve
-           || State == PlayState.PostResolve)
+           || State == PlayState.PostPlay)
         {
             return;
         }
 
         //Debug.LogFormat("[{0}][{1:f}] frameCounter {2} ", name, Time.fixedTime, frameCounter);
 
-        if (frameCounter++ > lastFrame)
+        if (nextShootTime < Time.fixedTime)
         {
-            if (State == PlayState.Play)
-                State = PlayState.PreResolve;
-            else if (State == PlayState.Resolve)
-                State = PlayState.PostResolve;
+            this.State = PlayState.Shoot;
         }
     }
 
@@ -198,18 +191,18 @@ public class GameController : SingletonBehavior<GameController>
         Announcer.gameObject.SetActive(false);
     }
 
-    IEnumerator DoPreResolve()
-    {
-        Announcer.gameObject.SetActive(true);
+    //IEnumerator DoPreResolve()
+    //{
+    //    Announcer.gameObject.SetActive(true);
 
-        Announcer.text = "RESOLVE";
-        Announcer.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
-        yield return Announcer.transform.DOScale(1f, 1f).WaitForCompletion();
+    //    Announcer.text = "RESOLVE";
+    //    Announcer.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+    //    yield return Announcer.transform.DOScale(1f, 1f).WaitForCompletion();
 
-        Announcer.gameObject.SetActive(false);
+    //    Announcer.gameObject.SetActive(false);
 
-        State = PlayState.Resolve;
-    }
+    //    State = PlayState.Resolve;
+    //}
 
     IEnumerator ShowResult()
     {

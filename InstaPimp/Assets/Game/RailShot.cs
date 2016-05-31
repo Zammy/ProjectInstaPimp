@@ -21,13 +21,6 @@ public class RailShot : MonoBehaviour
         }
     }
 
-    public void Mark(Transform nozzle)
-    {
-        LineRenderer.SetPosition(0, nozzle.position);
-        LineRenderer.SetPosition(1, nozzle.position + nozzle.up);
-        LineRenderer.SetWidth(0.5f, 0.01f);
-    }
-
     public void Shoot(Transform nozzle)
     {
         LineRenderer.SetWidth(0.1f, 0.1f);

@@ -1,7 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
-using System;
-using System.Collections;
 using DG.Tweening;
 
 public class Player : MonoBehaviour
@@ -22,10 +19,6 @@ public class Player : MonoBehaviour
 
     bool isGrounded = false;
     float jumpUntil = float.MinValue;
-
-    const int FRAME_BUFFER_SIZE = 512;
-    InputSnapshot[] input = new InputSnapshot[512];
-    int frameCounter = 0;
 
     Transform railShotsBase;
     GameController gameController;
@@ -67,17 +60,16 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void SetShootFrames(List<int> shootFrames)
+    public void Shoot()
     {
-        foreach (var shootFrame in shootFrames)
-        {
-            input[shootFrame].FireWasPressed = true;
-        }
-    }
+        if (isDead)
+            return;
 
-    public void ResetInputIndex()
-    {
-        frameCounter = 0;
+        var projGo = (GameObject)Instantiate(ProjPrefab, Nozzle.position, Nozzle.rotation);
+        projGo.transform.parent = railShotsBase;
+        RailShot railShot = projGo.GetComponent<RailShot>();
+        railShot.Player = this;
+        railShot.Shoot(Nozzle);
     }
 
     void Awake()
@@ -98,48 +90,34 @@ public class Player : MonoBehaviour
         PlayState state = PlayState.Selection;
         if (gameController != null)
         {
-            state = GameController.Instance.State;
+            state = gameController.State;
         }
 
         if (state == PlayState.PrePlay
-               || state == PlayState.PreResolve
-               || state == PlayState.PostResolve)
+               || state == PlayState.PostPlay
+               || state == PlayState.Shoot)
         {
+            this.MovementUpdate(0f);
             return;
-        }
-
-        if (state == PlayState.Play
-            || state == PlayState.Selection)
-        {
-            input[frameCounter].Take(playerInfo.PlayerActions);
         }
 
         //Debug.LogFormat("[{0}][{1:f}] frameCounter {2} ", name, Time.fixedTime, frameCounter);
 
-
-        InputSnapshot currentInput = input[frameCounter];
-        if (state != PlayState.Selection)
-            frameCounter++;
-
         isGrounded = BottomChecker.IsCollidingWith("Wall");
 
-        if (isGrounded && currentInput.JumpWasPressed)
+        if (isGrounded && playerInfo.PlayerActions.Jump.WasPressed)
         {
-            jumpUntil = Time.time + JumpTime;
+            jumpUntil = Time.fixedTime + JumpTime;
         }
 
-        if (currentInput.Aim.sqrMagnitude > 0.5f)
+        var newAim = playerInfo.PlayerActions.Aim.Value;
+        if (newAim.sqrMagnitude > 0.5f)
         {
-            AimUpdate(currentInput.Aim);
+            AimUpdate(newAim);
         }
 
-        MovementUpdate(currentInput.Move);
-
-        if (currentInput.FireWasPressed)
-        {
-            //Debug.Log("Shoot !!!!!!!!!!!!!!");
-            Shoot(state);
-        }
+        var move = playerInfo.PlayerActions.Move.Value;
+        MovementUpdate(move);
     }
 
     private void MovementUpdate(float move)
@@ -186,22 +164,6 @@ public class Player : MonoBehaviour
         this.Aim.xLookAt(transform.position + aimVec);
     }
 
-    private void Shoot(PlayState state)
-    {
-        var projGo = (GameObject)Instantiate(ProjPrefab, Nozzle.position, Nozzle.rotation);
-        projGo.transform.parent = railShotsBase;
-        RailShot railShot = projGo.GetComponent<RailShot>();
-        railShot.Player = this;
-        if (state == PlayState.Play)
-        {
-            railShot.Mark(Nozzle);
-        }
-        else
-        {
-            railShot.Shoot(Nozzle);
-        }
-    }
-    
     void Die()
     {
         this.Body.GetComponent<BoxCollider>().enabled = false;
