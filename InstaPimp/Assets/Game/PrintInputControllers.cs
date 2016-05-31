@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 public class PrintInputControllers : MonoBehaviour
 {
@@ -8,7 +7,7 @@ public class PrintInputControllers : MonoBehaviour
         Debug.Log("= Active devices =");
         foreach(var device in InControl.InputManager.Devices)
         {
-            Debug.Log(device.Name);
+            Debug.LogFormat("[{0}] {1}", device.GetHashCode(), device.Name);
         }
     }
 }

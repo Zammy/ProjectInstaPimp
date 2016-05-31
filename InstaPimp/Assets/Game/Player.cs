@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 
 public class Player : MonoBehaviour
 {
@@ -17,14 +17,17 @@ public class Player : MonoBehaviour
     public MeshRenderer Body;
     public MeshRenderer Railgun;
 
-    PlayerActions playerActions;
-    new Rigidbody rigidbody;
-    public bool isGrounded = false;
+    bool isGrounded = false;
     float jumpUntil = float.MinValue;
-    float move;
-    Vector2 aim;
-    bool shoot;
 
+    const int FRAME_BUFFER_SIZE = 512;
+    InputSnapshot[] input = new InputSnapshot[512];
+    int frameCounter = 0;
+
+    Transform railShotsBase;
+
+    GameController gameController;
+   
     PlayerInfo playerInfo;
     public PlayerInfo PlayerInfo
     {
@@ -37,54 +40,84 @@ public class Player : MonoBehaviour
             playerInfo = value;
             Body.material = playerInfo.Material;
             Railgun.material = playerInfo.Material;
-
-            playerActions = playerInfo.PlayerActions;
         }
+    }
+
+    public void SetShootFrames(List<int> shootFrames)
+    {
+        foreach (var shootFrame in shootFrames)
+        {
+            input[shootFrame].FireWasPressed = true;
+        }
+    }
+
+    public void ResetInputIndex()
+    {
+        frameCounter = 0;
     }
 
     void Awake()
     {
-        rigidbody = this.GetComponent<Rigidbody>();
-    }
+        var obj = GameObject.Find("RailShots");
+        if (obj != null)
+            railShotsBase = obj.transform;
 
-    void Start()
-    {
-    }
 
-    void Update()
-    {
-        isGrounded = BottomChecker.IsCollidingWith("Wall");
-
-        if (isGrounded && playerActions.Jump.WasPressed)
-        {
-            jumpUntil = Time.time + JumpTime;
-        }
-        move = playerActions.Move.Value;
-
-        var newAim = new Vector2(playerActions.Aim.X, playerActions.Aim.Y);
-        if (newAim.sqrMagnitude > 0.5f)
-        {
-            aim = newAim;
-        }
-
-        shoot = playerActions.Fire.WasPressed;
+        this.gameController = GameController.Instance;
     }
 
     void FixedUpdate()
     {
-        MovementUpdate();
-        AimUpdate();
-        
-        if (shoot)
+        PlayState state = PlayState.Selection;
+        if (gameController != null)
         {
-            var projGo = (GameObject)Instantiate(ProjPrefab, Nozzle.position, Nozzle.rotation);
-            RailShot railShot = projGo.GetComponent<RailShot>();
-            railShot.Shoot(Nozzle);
+            state = GameController.Instance.State;
+        }
+
+        if (state == PlayState.PrePlay
+               || state == PlayState.PreResolve
+               || state == PlayState.PostResolve)
+        {
+            return;
+        }
+
+        if (state == PlayState.Play
+            || state == PlayState.Selection )
+        {
+            input[frameCounter].Take(playerInfo.PlayerActions);
+        }
+
+        //Debug.LogFormat("[{0}][{1:f}] frameCounter {2} ", name, Time.fixedTime, frameCounter);
+
+
+        InputSnapshot currentInput = input[frameCounter];
+        if (state != PlayState.Selection)
+            frameCounter++;
+
+        isGrounded = BottomChecker.IsCollidingWith("Wall");
+
+        if (isGrounded && currentInput.JumpWasPressed)
+        {
+            jumpUntil = Time.time + JumpTime;
+        }
+
+        if (currentInput.Aim.sqrMagnitude > 0.5f)
+        {
+            AimUpdate(currentInput.Aim);
+        }
+
+        MovementUpdate(currentInput.Move);
+        
+        if (currentInput.FireWasPressed)
+        {
+            //Debug.Log("Shoot !!!!!!!!!!!!!!");
+            Shoot(state);
         }
     }
 
-    private void MovementUpdate()
+    private void MovementUpdate(float move)
     {
+        var rigidbody = GetComponent<Rigidbody>();
         float x = 0;
         float y = rigidbody.velocity.y;
 
@@ -120,10 +153,26 @@ public class Player : MonoBehaviour
         rigidbody.velocity = new Vector3(x, y, 0);
     }
 
-    void AimUpdate()
+    void AimUpdate(Vector2 aim)
     {
         Vector3 aimVec = new Vector3(aim.x, aim.y, 0).normalized;
         this.Aim.xLookAt(transform.position + aimVec);
+    }
+
+    private void Shoot(PlayState state)
+    {
+        var projGo = (GameObject)Instantiate(ProjPrefab, Nozzle.position, Nozzle.rotation);
+        projGo.transform.parent = railShotsBase;
+        RailShot railShot = projGo.GetComponent<RailShot>();
+        railShot.Material = playerInfo.Material;
+        if (state == PlayState.Play)
+        {
+            railShot.Mark(Nozzle);
+        }
+        else
+        {
+            railShot.Shoot(Nozzle);
+        }
     }
 
     void OnGUI()

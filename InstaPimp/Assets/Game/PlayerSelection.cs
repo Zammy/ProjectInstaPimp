@@ -4,15 +4,22 @@ using InControl;
 using System.Collections.Generic;
 using System;
 using System.Linq;
+using UnityEngine.SceneManagement;
 
 public class PlayerSelection : MonoBehaviour
 {
     public GameObject PlayerCagePrefab;
     public Material[] PlayerColors;
+    public float ReadyTime = 3f;
 
-    public List<PlayerCage> playerCages = new List<PlayerCage>();
+    List<PlayerCage> playerCages = new List<PlayerCage>();
 
     List<InputDevice> pendingDetachedDevices = new List<InputDevice>();
+    float allDevicesReadyTime = float.MinValue;
+
+    void Start()
+    {
+    }
 
     void OnEnable()
     {
@@ -24,6 +31,53 @@ public class PlayerSelection : MonoBehaviour
     {
         InputManager.OnDeviceAttached -= OnDeviceAttached;
         InputManager.OnDeviceDetached -= OnDeviceDetached;
+    }
+
+    void FixedUpdate()
+    {
+        int activePlayers = playerCages.Count;
+
+        InputDevice activeDevice = InputManager.ActiveDevice;
+
+        if (activeDevice.Action1.WasPressed
+            && FindPlayerCage(activeDevice) == null
+            && activePlayers <= 4)
+        {
+            this.AddPlayer(activeDevice);
+        }
+
+        if (activeDevice.Action2.WasPressed
+             && FindPlayerCage(activeDevice) != null)
+        {
+            this.RemovePlayer(activeDevice);
+        }
+
+        CheckIfShouldStartGame();
+    }
+
+    private void CheckIfShouldStartGame()
+    {
+        if (playerCages.Count <= 1)
+            return;
+
+        for (int i = 0; i < playerCages.Count; i++)
+        {
+            if (!playerCages[i].IsReady)
+            {
+                allDevicesReadyTime = float.MinValue;
+                return;
+            }
+        }
+
+        if (allDevicesReadyTime < 0)
+        {
+            allDevicesReadyTime = Time.time + ReadyTime;
+        }
+        else if (Time.time > allDevicesReadyTime)
+        {  
+            GameInfo.Players = this.playerCages.Select<PlayerCage, PlayerInfo>(pc => pc.PlayerInfo).ToList();
+            SceneManager.LoadScene("Test");
+        }
     }
 
     void OnDeviceAttached(InputDevice inputDevice)
@@ -58,26 +112,6 @@ public class PlayerSelection : MonoBehaviour
             RemovePlayer(device);
         }
         pendingDetachedDevices.Clear();
-    }
-
-    void Update()
-    {
-        int activePlayers = playerCages.Count;
-
-        InputDevice activeDevice = InputManager.ActiveDevice;
-
-        if (activeDevice.Action1.WasPressed
-            && FindPlayerCage(activeDevice) == null
-            && activePlayers <= 4)
-        {
-            this.AddPlayer(activeDevice);
-        }
-
-        if (activeDevice.Action2.WasPressed
-             && FindPlayerCage(activeDevice) != null)
-        {
-            this.RemovePlayer(activeDevice);
-        }
     }
 
     private void AddPlayer(InputDevice activeDevice)
