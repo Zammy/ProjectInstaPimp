@@ -4,7 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using System;
 
 public enum PlayState
 {
@@ -31,10 +30,12 @@ public class GameController : SingletonBehavior<GameController>
     public float ShootPauseTime = 1.5f;
     public float ShootInterval = 2f;
 
+    public TimerDisplay TimerDisplay;
+
     private List<Player> players;
     private int[] playerScores;
 
-    float nextShootTime = float.MinValue;
+    float nextStateChangeTime = float.MinValue;
     
 
     private PlayState state;
@@ -68,7 +69,7 @@ public class GameController : SingletonBehavior<GameController>
 
                     break;
                 case PlayState.Play:
-                    nextShootTime = Time.fixedTime + ShootInterval;
+                    nextStateChangeTime = Time.fixedTime + ShootInterval;
                     break;
                 case PlayState.Shoot:
                     foreach (var player in players)
@@ -76,9 +77,7 @@ public class GameController : SingletonBehavior<GameController>
                         player.Shoot();
                     }
 
-                    DOTween.Sequence()
-                        .AppendInterval(ShootPauseTime)
-                        .AppendCallback(() => this.State = PlayState.Play);
+                    nextStateChangeTime = Time.fixedTime + ShootPauseTime;
                     break;
                 case PlayState.PostPlay:
                     StartCoroutine(ShowResult());
@@ -161,10 +160,16 @@ public class GameController : SingletonBehavior<GameController>
 
         //Debug.LogFormat("[{0}][{1:f}] frameCounter {2} ", name, Time.fixedTime, frameCounter);
 
-        if (nextShootTime < Time.fixedTime)
+
+        if (nextStateChangeTime < Time.fixedTime)
         {
-            this.State = PlayState.Shoot;
+            if (State == PlayState.Play)
+                this.State = PlayState.Shoot;
+            else if (State == PlayState.Shoot)
+                this.State = PlayState.Play;
         }
+
+        TimerDisplay.DisplayTimeLeft(nextStateChangeTime - Time.fixedTime);
     }
 
     IEnumerator GameStarted()
