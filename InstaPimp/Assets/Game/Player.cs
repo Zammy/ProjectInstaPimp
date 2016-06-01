@@ -13,6 +13,7 @@ public class Player : MonoBehaviour
 
     public CollisionChecker TopChecker;
     public CollisionChecker BottomChecker;
+    public CollisionChecker NozzleChecker;
 
     public MeshRenderer Body;
     public MeshRenderer Railgun;
@@ -63,7 +64,7 @@ public class Player : MonoBehaviour
 
     public void Shoot()
     {
-        if (isDead)
+        if (isDead || NozzleChecker.IsCollidingWith("Wall") )
             return;
 
         var projGo = (GameObject)Instantiate(ProjPrefab, Nozzle.position, Nozzle.rotation);
@@ -98,7 +99,7 @@ public class Player : MonoBehaviour
                || state == PlayState.PostPlay
                || state == PlayState.Shoot)
         {
-            this.MovementUpdate(0f);
+            GetComponent<Rigidbody>().velocity = Vector3.zero;
             return;
         }
 

@@ -8,6 +8,8 @@ GameObject:
   serializedVersion: 4
   m_Component:
   - 4: {fileID: 429004}
+  - 114: {fileID: 11486746}
+  - 135: {fileID: 13580642}
   m_Layer: 0
   m_Name: Nozzle
   m_TagString: Untagged
@@ -434,6 +436,7 @@ MonoBehaviour:
   Nozzle: {fileID: 429004}
   TopChecker: {fileID: 11458310}
   BottomChecker: {fileID: 11459100}
+  NozzleChecker: {fileID: 11486746}
   Body: {fileID: 2319410}
   Railgun: {fileID: 2399364}
 --- !u!114 &11450550
@@ -471,6 +474,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 901a7da63898f264aa905b8ab8a2cee0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &11486746
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 106418}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 901a7da63898f264aa905b8ab8a2cee0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!135 &13580642
+SphereCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 106418}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1
