@@ -35,6 +35,7 @@ public class Player : MonoBehaviour
             playerInfo = value;
             Body.material = playerInfo.Material;
             Railgun.material = playerInfo.Material;
+            GetComponent<TimerSphere>().SphereMaterial = playerInfo.Material;
         }
     }
 

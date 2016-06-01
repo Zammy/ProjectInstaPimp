@@ -70,6 +70,11 @@ public class GameController : SingletonBehavior<GameController>
                     break;
                 case PlayState.Play:
                     nextStateChangeTime = Time.fixedTime + ShootInterval;
+                    for (int i = 0; i < players.Count; i++)
+                    {
+                        var sphereTimer = players[i].GetComponent<TimerSphere>();
+                        sphereTimer.ResetTimeLeft(ShootInterval);
+                    }
                     break;
                 case PlayState.Shoot:
                     foreach (var player in players)
@@ -169,7 +174,17 @@ public class GameController : SingletonBehavior<GameController>
                 this.State = PlayState.Play;
         }
 
-        TimerDisplay.DisplayTimeLeft(nextStateChangeTime - Time.fixedTime);
+        float timeLeft = nextStateChangeTime - Time.fixedTime;
+        TimerDisplay.DisplayTimeLeft(timeLeft);
+
+        if (State != PlayState.Play)
+            return;
+
+        for (int i = 0; i < players.Count; i++)
+        {
+            var sphereTimer = players[i].GetComponent<TimerSphere>();
+            sphereTimer.DisplayTimeLeft(timeLeft);
+        }
     }
 
     IEnumerator GameStarted()
