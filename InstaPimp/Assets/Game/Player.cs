@@ -101,25 +101,34 @@ public class Player : MonoBehaviour
 
         if (state == PlayState.PrePlay
                || state == PlayState.PostPlay
-               || state == PlayState.Shoot)
+               || state == PlayState.Freeze)
         {
             GetComponent<Rigidbody>().velocity = Vector3.zero;
+        }
+
+        if (state == PlayState.PrePlay
+             || state == PlayState.PostPlay)
+        {
             return;
         }
 
-        //Debug.LogFormat("[{0}][{1:f}] frameCounter {2} ", name, Time.fixedTime, frameCounter);
+
+        var newAim = playerInfo.PlayerActions.Aim.Value;
+        if (newAim.sqrMagnitude > 0.5f)
+        {
+            AimUpdate(newAim);
+        }
+
+        if (state == PlayState.Freeze)
+        {
+            return;
+        }
 
         isGrounded = BottomChecker.IsCollidingWith("Wall") || BottomChecker.IsCollidingWith("Player");
 
         if (isGrounded && playerInfo.PlayerActions.Jump.WasPressed)
         {
             jumpUntil = Time.fixedTime + JumpTime;
-        }
-
-        var newAim = playerInfo.PlayerActions.Aim.Value;
-        if (newAim.sqrMagnitude > 0.5f)
-        {
-            AimUpdate(newAim);
         }
 
         var move = playerInfo.PlayerActions.Move.Value;

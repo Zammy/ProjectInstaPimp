@@ -10,7 +10,7 @@ public enum PlayState
     Selection,
     PrePlay,
     Play,
-    Shoot,
+    Freeze,
     PostPlay
 }
 
@@ -27,8 +27,10 @@ public class GameController : SingletonBehavior<GameController>
 
     public Material[] PlayerColors;
 
-    public float ShootPauseTime = 1.5f;
+    public float FreezePauseTime = 1.5f;
+    public float ShootDelay = 0.25f;
     public float ShootInterval = 2f;
+
 
     public TimerDisplay TimerDisplay;
 
@@ -76,13 +78,18 @@ public class GameController : SingletonBehavior<GameController>
                         sphereTimer.ResetTimeLeft(ShootInterval);
                     }
                     break;
-                case PlayState.Shoot:
-                    foreach (var player in players)
-                    {
-                        player.Shoot();
-                    }
-
-                    nextStateChangeTime = Time.fixedTime + ShootPauseTime;
+                case PlayState.Freeze:
+                    DOTween.Sequence()
+                        .AppendInterval(ShootDelay)
+                        .AppendCallback(() =>
+                        {
+                            foreach (var player in players)
+                            {
+                                player.Shoot();
+                            }
+                        });
+                    
+                    nextStateChangeTime = Time.fixedTime + ShootDelay + FreezePauseTime;
                     break;
                 case PlayState.PostPlay:
                     StartCoroutine(ShowResult());
@@ -165,12 +172,11 @@ public class GameController : SingletonBehavior<GameController>
 
         //Debug.LogFormat("[{0}][{1:f}] frameCounter {2} ", name, Time.fixedTime, frameCounter);
 
-
         if (nextStateChangeTime < Time.fixedTime)
         {
             if (State == PlayState.Play)
-                this.State = PlayState.Shoot;
-            else if (State == PlayState.Shoot)
+                this.State = PlayState.Freeze;
+            else if (State == PlayState.Freeze)
                 this.State = PlayState.Play;
         }
 

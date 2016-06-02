@@ -415,7 +415,8 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 5d85abfc732b25643a3934e4ccf74afd, type: 2}
   - {fileID: 2100000, guid: 9999142fde8f392489dd3235833658e2, type: 2}
   - {fileID: 2100000, guid: 9e8b167f8ee68ed44a93520da2b8c21e, type: 2}
-  ShootPauseTime: 0.25
+  FreezePauseTime: 0.25
+  ShootDelay: 0.25
   ShootInterval: 2
   TimerDisplay: {fileID: 856655904}
 --- !u!4 &172395628
