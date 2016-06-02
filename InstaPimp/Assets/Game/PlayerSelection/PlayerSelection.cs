@@ -2,24 +2,21 @@
 using System.Collections;
 using InControl;
 using System.Collections.Generic;
-using System;
 using System.Linq;
 using UnityEngine.SceneManagement;
 
-public class PlayerSelection : MonoBehaviour
+public class PlayerSelection : Page
 {
     public GameObject PlayerCagePrefab;
     public Material[] PlayerColors;
     public float ReadyTime = 3f;
 
+    public Page ModeSelection;
+
     List<PlayerCage> playerCages = new List<PlayerCage>();
 
     List<InputDevice> pendingDetachedDevices = new List<InputDevice>();
     float allDevicesReadyTime = float.MinValue;
-
-    void Start()
-    {
-    }
 
     void OnEnable()
     {
@@ -52,10 +49,10 @@ public class PlayerSelection : MonoBehaviour
             this.RemovePlayer(activeDevice);
         }
 
-        CheckIfShouldStartGame();
+        CheckIfAllReady();
     }
 
-    private void CheckIfShouldStartGame()
+    private void CheckIfAllReady()
     {
         if (playerCages.Count <= 1)
             return;
@@ -76,7 +73,12 @@ public class PlayerSelection : MonoBehaviour
         else if (Time.time > allDevicesReadyTime)
         {  
             GameInfo.Players = this.playerCages.Select<PlayerCage, PlayerInfo>(pc => pc.PlayerInfo).ToList();
-            SceneManager.LoadScene("Test");
+            foreach (var playerCage in playerCages)
+            {
+                Destroy(playerCage.gameObject);
+            }
+            this.Deactivate();
+            ModeSelection.Activate();
         }
     }
 

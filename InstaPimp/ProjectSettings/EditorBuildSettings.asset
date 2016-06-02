@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Game/PlayerSelection.unity
+    path: Assets/Game/PlayerSelection/PlayerSelection.unity
   - enabled: 1
-    path: Assets/Game/Test.unity
+    path: Assets/Game/Battle/Test.unity
