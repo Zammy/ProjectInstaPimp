@@ -24,6 +24,8 @@ public class Player : MonoBehaviour
     Transform railShotsBase;
     GameController gameController;
 
+//    float lastRailShot = float.MinValue;
+
     PlayerInfo playerInfo;
     public PlayerInfo PlayerInfo
     {
@@ -72,6 +74,8 @@ public class Player : MonoBehaviour
         RailShot railShot = projGo.GetComponent<RailShot>();
         railShot.Player = this;
         railShot.Shoot(Nozzle);
+
+//        lastRailShot = Time.fixedTime + 1f;
     }
 
     void Awake()
@@ -105,7 +109,7 @@ public class Player : MonoBehaviour
 
         //Debug.LogFormat("[{0}][{1:f}] frameCounter {2} ", name, Time.fixedTime, frameCounter);
 
-        isGrounded = BottomChecker.IsCollidingWith("Wall");
+        isGrounded = BottomChecker.IsCollidingWith("Wall") || BottomChecker.IsCollidingWith("Player");
 
         if (isGrounded && playerInfo.PlayerActions.Jump.WasPressed)
         {
@@ -120,6 +124,12 @@ public class Player : MonoBehaviour
 
         var move = playerInfo.PlayerActions.Move.Value;
         MovementUpdate(move);
+
+//        if (playerInfo.PlayerActions.Fire.WasPressed
+//            && lastRailShot < Time.fixedTime)
+//        {
+//            this.Shoot();
+//        }
     }
 
     private void MovementUpdate(float move)

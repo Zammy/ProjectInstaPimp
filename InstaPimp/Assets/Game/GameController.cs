@@ -239,7 +239,7 @@ public class GameController : SingletonBehavior<GameController>
             scoreSheet.SetKills(playerColor, score);
         }
 
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(1.5f);
 
         this.ScoreBase.gameObject.SetActive(false);
 

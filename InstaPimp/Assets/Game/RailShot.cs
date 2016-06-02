@@ -26,7 +26,11 @@ public class RailShot : MonoBehaviour
         LineRenderer.SetWidth(0.1f, 0.1f);
 
         RaycastHit hit;
-        if (!Physics.Raycast(nozzle.position, nozzle.up, out hit))
+        if (!Physics.Raycast(nozzle.position,
+             nozzle.up, 
+             out hit,  
+             float.MaxValue, 
+             LayerMask.GetMask(new string[] { "Wall", "Player"})))
         {
             Debug.LogError("Raycasted and hit nothing!");
             return;
@@ -40,12 +44,19 @@ public class RailShot : MonoBehaviour
             var player = hit.collider.transform.parent.GetComponent<Player>();
             if (!player.IsDead)
             {
-                player.IsDead = true;
-                GameController.Instance.PlayerKilledPlayer(this.Player, player);
+                StartCoroutine( Kill( player)  );
+
             }
         }
 
         StartCoroutine(Die());
+    }
+
+    private IEnumerator Kill(Player player)
+    {
+        yield return null;
+        player.IsDead = true;
+        GameController.Instance.PlayerKilledPlayer(this.Player, player);
     }
 
     private IEnumerator Die()
