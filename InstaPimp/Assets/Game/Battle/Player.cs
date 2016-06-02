@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using DG.Tweening;
+using System.Collections;
 
 public class Player : MonoBehaviour
 {
@@ -19,7 +20,7 @@ public class Player : MonoBehaviour
     public MeshRenderer Railgun;
 
     bool isGrounded = false;
-    float jumpUntil = float.MinValue;
+    float jumpTimer = float.MinValue;
 
     Transform railShotsBase;
     GameController gameController;
@@ -112,7 +113,6 @@ public class Player : MonoBehaviour
             return;
         }
 
-
         var newAim = playerInfo.PlayerActions.Aim.Value;
         if (newAim.sqrMagnitude > 0.5f)
         {
@@ -124,11 +124,13 @@ public class Player : MonoBehaviour
             return;
         }
 
+        jumpTimer -= Time.fixedDeltaTime;
+
         isGrounded = BottomChecker.IsCollidingWith("Wall") || BottomChecker.IsCollidingWith("Player");
 
         if (isGrounded && playerInfo.PlayerActions.Jump.WasPressed)
         {
-            jumpUntil = Time.fixedTime + JumpTime;
+            jumpTimer = JumpTime;
         }
 
         var move = playerInfo.PlayerActions.Move.Value;
@@ -147,11 +149,11 @@ public class Player : MonoBehaviour
         float x = 0;
         float y = rigidbody.velocity.y;
 
-        if (Time.time < jumpUntil)
+        if (jumpTimer > 0)
         {
             if (TopChecker.IsCollidingWith("Wall"))
             {
-                jumpUntil = float.MinValue;
+                jumpTimer = float.MinValue;
             }
             else
             {
@@ -195,8 +197,10 @@ public class Player : MonoBehaviour
     void Undie()
     {
         this.Body.GetComponent<BoxCollider>().enabled = true;
-        this.Body.material.DOFade(1f, 0f);
-        this.Railgun.material.DOFade(1f, 0f);
+        Color color = this.Body.material.color;
+        color.a = 1f;
+        this.Body.material.color = color;
+        this.Railgun.material.color = color;
     }
     
     void OnGUI()

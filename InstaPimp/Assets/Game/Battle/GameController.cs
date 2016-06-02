@@ -19,7 +19,6 @@ public class GameController : SingletonBehavior<GameController>
     public GameObject PlayerPrefab;
     public Transform PlayersBase;
     public Text Announcer;
-    public Transform[] StartingPoints;
     public Transform RailShotsBase;
 
     public Transform ScoreBase;
@@ -31,8 +30,14 @@ public class GameController : SingletonBehavior<GameController>
     public float ShootDelay = 0.25f;
     public float ShootInterval = 2f;
 
-
     public TimerDisplay TimerDisplay;
+
+    public Transform[] TwoPlayerStartingPoints;
+    public Transform[] ThreePlayerStartingPoints;
+    public Transform[] FourPlayerStartingPoints;
+    public Transform[] DeathmatchSpawnPoints;
+
+    public Flasher Flasher;
 
     private List<Player> players;
     private int[] playerScores;
@@ -57,16 +62,43 @@ public class GameController : SingletonBehavior<GameController>
                 case PlayState.PrePlay:
                     StartCoroutine(GameStarted());
 
+                    List<Transform> startingPoints = null;
+                    switch (players.Count)
+                    {
+                        case 2:
+                            {
+                                startingPoints = new List<Transform>(TwoPlayerStartingPoints);
+                                break;
+                            }
+                        case 3:
+                            {
+                                startingPoints = new List<Transform>(ThreePlayerStartingPoints);
+                                break;
+                            }
+                        case 4:
+                            {
+                                startingPoints = new List<Transform>(FourPlayerStartingPoints);
+                                break;
+                            }
+                        default:
+                            break;
+                    }
+
+                    startingPoints.xShuffle<Transform>();
+
                     for (int i = 0; i < players.Count; i++)
                     {
-                        var player = players[i];
-                        player.IsDead = false;
-                        player.transform.position = StartingPoints[i].position;
+                        RespawnPlayer(players[i], startingPoints[i].position);
                     }
 
                     foreach (Transform child in RailShotsBase)
                     {
                         Destroy(child.gameObject);
+                    }
+
+                    if (GameInfo.GameMode == GameMode.Deathmatch)
+                    {
+                        playerScores = new int[players.Count];
                     }
 
                     break;
@@ -79,6 +111,8 @@ public class GameController : SingletonBehavior<GameController>
                     }
                     break;
                 case PlayState.Freeze:
+                    Flasher.Flash();
+
                     DOTween.Sequence()
                         .AppendInterval(ShootDelay)
                         .AppendCallback(() =>
@@ -100,22 +134,44 @@ public class GameController : SingletonBehavior<GameController>
         }
     }
 
-    public void PlayerKilledPlayer(Player player1, Player player2)
+    public void PlayerKilledPlayer(Player fragger, Player fragged)
     {
-        Debug.LogFormat("{0} killed {1}", player1, player2);
+        Debug.LogFormat("{0} killed {1}", fragger, fragged);
 
-        int playerIndex = players.IndexOf(player1);
+        int playerIndex = players.IndexOf(fragger);
         playerScores[playerIndex]++;
 
-        int alivePlayers = 0;
-        foreach (var player in players)
+        if (GameInfo.GameMode == GameMode.LastManStanding)
         {
-            if (!player.IsDead)
-                alivePlayers++;
-        }
+            fragged.IsDead = true;
 
-        if (alivePlayers <= 1)
-            this.State = PlayState.PostPlay;
+            int alivePlayers = 0;
+            foreach (var player in players)
+            {
+                if (!player.IsDead)
+                    alivePlayers++;
+            }
+
+            if (alivePlayers <= 1)
+                this.State = PlayState.PostPlay;
+        }
+        else if (GameInfo.GameMode == GameMode.Deathmatch)
+        {
+            if (playerScores[playerIndex] >= GameInfo.DeathmatchFragGoal)
+            {
+                this.State = PlayState.PostPlay;
+            }
+
+            nextStateChangeTime += 1f;
+
+            DOTween.Sequence()
+                .AppendInterval(0.5f)
+                .AppendCallback(() =>
+                {
+                    var newSpawnPoint = DeathmatchSpawnPoints[Random.Range(0, DeathmatchSpawnPoints.Length)].position;
+                    RespawnPlayer(fragged, newSpawnPoint);
+                });
+        }
     }
 
     protected override void Awake()
@@ -143,7 +199,7 @@ public class GameController : SingletonBehavior<GameController>
         for (int i = 0; i < GameInfo.Players.Count; i++)
         {
             var playerInfo = GameInfo.Players[i];
-            var playerGo = (GameObject) Instantiate(PlayerPrefab, StartingPoints[i].position, Quaternion.identity);
+            var playerGo = (GameObject) Instantiate(PlayerPrefab);
             playerGo.transform.parent = PlayersBase;
             var player = playerGo.GetComponent<Player>();
             player.PlayerInfo = playerInfo;
@@ -193,6 +249,12 @@ public class GameController : SingletonBehavior<GameController>
         }
     }
 
+    void RespawnPlayer(Player player, Vector3 pos)
+    {
+        player.IsDead = false;
+        player.transform.position = pos;
+    }
+
     IEnumerator GameStarted()
     {
         yield return StartCoroutine(DoCountdown());
@@ -203,12 +265,12 @@ public class GameController : SingletonBehavior<GameController>
     {
         Announcer.gameObject.SetActive(true);
 
-        for (int i = 3; i > 0; i--)
-        {
-            Announcer.text = i.ToString();
-            Announcer.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
-            yield return Announcer.transform.DOScale(1f, 1f).WaitForCompletion();
-        }
+        //for (int i = 3; i > 0; i--)
+        //{
+        //    Announcer.text = i.ToString();
+        //    Announcer.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+        //    yield return Announcer.transform.DOScale(1f, 1f).WaitForCompletion();
+        //}
 
         Announcer.text = "GO!";
         Announcer.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
@@ -216,19 +278,6 @@ public class GameController : SingletonBehavior<GameController>
 
         Announcer.gameObject.SetActive(false);
     }
-
-    //IEnumerator DoPreResolve()
-    //{
-    //    Announcer.gameObject.SetActive(true);
-
-    //    Announcer.text = "RESOLVE";
-    //    Announcer.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
-    //    yield return Announcer.transform.DOScale(1f, 1f).WaitForCompletion();
-
-    //    Announcer.gameObject.SetActive(false);
-
-    //    State = PlayState.Resolve;
-    //}
 
     IEnumerator ShowResult()
     {

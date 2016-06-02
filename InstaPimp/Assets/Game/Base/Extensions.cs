@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public static class Extensions
 {
@@ -20,6 +21,19 @@ public static class Extensions
     public static RectTransform xToRect(this Transform trans)
     {
         return trans as RectTransform;
+    }
+
+    public static void xShuffle<T>(this IList<T> list)
+    {
+        int n = list.Count;
+        while (n > 1)
+        {
+            n--;
+            int k = Random.Range(0, n);
+            T value = list[k];
+            list[k] = list[n];
+            list[n] = value;
+        }
     }
 }
 
