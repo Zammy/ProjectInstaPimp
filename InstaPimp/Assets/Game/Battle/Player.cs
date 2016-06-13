@@ -19,6 +19,8 @@ public class Player : MonoBehaviour
     public MeshRenderer Body;
     public MeshRenderer Railgun;
 
+    Color baseColor;
+
     bool isGrounded = false;
     float jumpTimer = float.MinValue;
 
@@ -40,6 +42,8 @@ public class Player : MonoBehaviour
             Body.material = playerInfo.Material;
             Railgun.material = playerInfo.Material;
             GetComponent<TimerSphere>().SphereMaterial = playerInfo.Material;
+
+            baseColor = playerInfo.Material.color;
         }
     }
 
@@ -67,7 +71,7 @@ public class Player : MonoBehaviour
 
     public void Shoot()
     {
-        if (isDead || NozzleChecker.IsCollidingWith("Wall") )
+        if (NozzleChecker.IsCollidingWith("Wall") )
             return;
 
         var projGo = (GameObject)Instantiate(ProjPrefab, Nozzle.position, Nozzle.rotation);
@@ -91,8 +95,8 @@ public class Player : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (IsDead)
-            return;
+//        if (IsDead)
+//            return;
 
         PlayState state = PlayState.Selection;
         if (gameController != null)
@@ -101,8 +105,8 @@ public class Player : MonoBehaviour
         }
 
         if (state == PlayState.PrePlay
-               || state == PlayState.PostPlay
-               || state == PlayState.Freeze)
+               || state == PlayState.PostPlay)
+//               || state == PlayState.Freeze)
         {
             GetComponent<Rigidbody>().velocity = Vector3.zero;
         }
@@ -119,10 +123,10 @@ public class Player : MonoBehaviour
             AimUpdate(newAim);
         }
 
-        if (state == PlayState.Freeze)
-        {
-            return;
-        }
+//        if (state == PlayState.Freeze)
+//        {
+//            return;
+//        }
 
         jumpTimer -= Time.fixedDeltaTime;
 
@@ -190,17 +194,33 @@ public class Player : MonoBehaviour
     void Die()
     {
         this.Body.GetComponent<BoxCollider>().enabled = false;
-        this.Body.material.DOFade(0, 1f);
-        this.Railgun.material.DOFade(0, 1f);
+
+        StartCoroutine( Fade() );
     }
 
     void Undie()
     {
         this.Body.GetComponent<BoxCollider>().enabled = true;
-        Color color = this.Body.material.color;
-        color.a = 1f;
-        this.Body.material.color = color;
-        this.Railgun.material.color = color;
+        this.Body.material.color = baseColor;
+        this.Railgun.material.color = baseColor;
+    }
+
+    const float fadePerSec = 6f;
+    IEnumerator Fade()
+    {
+        float time = 0f;
+        Color startColor = this.Body.material.color;
+        Color color = startColor;
+        do 
+        {
+            color = Color.Lerp(startColor, Color.white, time);
+            time += fadePerSec * Time.deltaTime;
+
+            Body.material.color = color;
+            Railgun.material.color = color;
+            yield return null;
+        }
+        while( time < 1f);
     }
     
     void OnGUI()

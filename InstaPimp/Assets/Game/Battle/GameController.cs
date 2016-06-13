@@ -29,6 +29,7 @@ public class GameController : SingletonBehavior<GameController>
     public float FreezePauseTime = 1.5f;
     public float ShootDelay = 0.25f;
     public float ShootInterval = 2f;
+    public float DelayTimeScale = 0.25f;
 
     public TimerDisplay TimerDisplay;
 
@@ -54,7 +55,7 @@ public class GameController : SingletonBehavior<GameController>
         }
         private set
         {
-            Debug.LogFormat("Change state {0} >> {1} ", state, value);
+//            Debug.LogFormat("Change state {0} >> {1} ", state, value);
 
             state = value;
             switch (state)
@@ -103,6 +104,8 @@ public class GameController : SingletonBehavior<GameController>
 
                     break;
                 case PlayState.Play:
+                    Time.timeScale = 1f;
+
                     nextStateChangeTime = Time.fixedTime + ShootInterval;
                     for (int i = 0; i < players.Count; i++)
                     {
@@ -112,6 +115,8 @@ public class GameController : SingletonBehavior<GameController>
                     break;
                 case PlayState.Freeze:
                     Flasher.Flash();
+
+                    Time.timeScale = DelayTimeScale;
 
                     DOTween.Sequence()
                         .AppendInterval(ShootDelay)
@@ -162,7 +167,9 @@ public class GameController : SingletonBehavior<GameController>
                 this.State = PlayState.PostPlay;
             }
 
-            nextStateChangeTime += 1f;
+            fragged.IsDead = true;
+
+//            nextStateChangeTime += 1f;
 
             DOTween.Sequence()
                 .AppendInterval(0.5f)
