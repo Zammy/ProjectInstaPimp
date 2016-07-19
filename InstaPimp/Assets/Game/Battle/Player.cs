@@ -27,8 +27,6 @@ public class Player : MonoBehaviour
     Transform railShotsBase;
     GameController gameController;
 
-//    float lastRailShot = float.MinValue;
-
     PlayerInfo playerInfo;
     public PlayerInfo PlayerInfo
     {
@@ -79,8 +77,6 @@ public class Player : MonoBehaviour
         RailShot railShot = projGo.GetComponent<RailShot>();
         railShot.Player = this;
         railShot.Shoot(Nozzle);
-
-//        lastRailShot = Time.fixedTime + 1f;
     }
 
     void Awake()
@@ -89,15 +85,22 @@ public class Player : MonoBehaviour
         if (obj != null)
             railShotsBase = obj.transform;
 
-
         this.gameController = GameController.Instance;
+    }
+
+    void Start()
+    {
+        Debug.Log("Start");
+        StartCoroutine(AimUpdate());
+    }
+
+    void Update()
+    {
+
     }
 
     void FixedUpdate()
     {
-//        if (IsDead)
-//            return;
-
         PlayState state = PlayState.Selection;
         if (gameController != null)
         {
@@ -106,7 +109,6 @@ public class Player : MonoBehaviour
 
         if (state == PlayState.PrePlay
                || state == PlayState.PostPlay)
-//               || state == PlayState.Freeze)
         {
             GetComponent<Rigidbody>().velocity = Vector3.zero;
         }
@@ -116,17 +118,6 @@ public class Player : MonoBehaviour
         {
             return;
         }
-
-        var newAim = playerInfo.PlayerActions.Aim.Value;
-        if (newAim.sqrMagnitude > 0.5f)
-        {
-            AimUpdate(newAim);
-        }
-
-//        if (state == PlayState.Freeze)
-//        {
-//            return;
-//        }
 
         jumpTimer -= Time.fixedDeltaTime;
 
@@ -139,12 +130,6 @@ public class Player : MonoBehaviour
 
         var move = playerInfo.PlayerActions.Move.Value;
         MovementUpdate(move);
-
-//        if (playerInfo.PlayerActions.Fire.WasPressed
-//            && lastRailShot < Time.fixedTime)
-//        {
-//            this.Shoot();
-//        }
     }
 
     private void MovementUpdate(float move)
@@ -185,10 +170,18 @@ public class Player : MonoBehaviour
         rigidbody.velocity = new Vector3(x, y, 0);
     }
 
-    void AimUpdate(Vector2 aim)
+    IEnumerator AimUpdate()
     {
-        Vector3 aimVec = new Vector3(aim.x, aim.y, 0).normalized;
-        this.Aim.xLookAt(transform.position + aimVec);
+        while (true)
+        {
+            var aim = playerInfo.PlayerActions.Aim.Value;
+            if (aim.sqrMagnitude > 0.5f)
+            {
+                Vector3 aimVec = new Vector3(aim.x, aim.y, 0).normalized;
+                this.Aim.xLookAt(transform.position + aimVec);
+            }
+            yield return null;
+        }
     }
 
     void Die()
