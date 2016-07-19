@@ -16,13 +16,18 @@ public enum PlayState
 
 public class GameController : SingletonBehavior<GameController>
 {
-    public GameObject PlayerPrefab;
-    public Transform PlayersBase;
+    //UI
     public Text Announcer;
-    public Transform RailShotsBase;
-
+    public TimerDisplay TimerDisplay;
+    public Flasher Flasher;
     public Transform ScoreBase;
     public GameObject ScoreSheetPrefab;
+    public ScorePanel[] ScorePanels;
+    //
+
+    public GameObject PlayerPrefab;
+    public Transform PlayersBase;
+    public Transform RailShotsBase;
 
     public Material[] PlayerColors;
 
@@ -31,21 +36,18 @@ public class GameController : SingletonBehavior<GameController>
     public float ShootInterval = 2f;
     public float DelayTimeScale = 0.25f;
 
-    public TimerDisplay TimerDisplay;
 
     public Transform[] TwoPlayerStartingPoints;
     public Transform[] ThreePlayerStartingPoints;
     public Transform[] FourPlayerStartingPoints;
     public Transform[] DeathmatchSpawnPoints;
 
-    public Flasher Flasher;
 
     private List<Player> players;
-    private int[] playerScores;
+    //private int[] playerScores;
 
     float nextStateChangeTime = float.MinValue;
     
-
     private PlayState state;
     public PlayState State
     {
@@ -99,7 +101,10 @@ public class GameController : SingletonBehavior<GameController>
 
                     if (GameInfo.GameMode == GameMode.Deathmatch)
                     {
-                        playerScores = new int[players.Count];
+                        foreach (var scorePanel in ScorePanels)
+                        {
+                            scorePanel.Score = 0;
+                        }
                     }
 
                     break;
@@ -141,10 +146,10 @@ public class GameController : SingletonBehavior<GameController>
 
     public void PlayerKilledPlayer(Player fragger, Player fragged)
     {
-        Debug.LogFormat("{0} killed {1}", fragger, fragged);
+        //Debug.LogFormat("{0} killed {1}", fragger, fragged);
 
         int playerIndex = players.IndexOf(fragger);
-        playerScores[playerIndex]++;
+        ScorePanels[playerIndex].Score++;
 
         if (GameInfo.GameMode == GameMode.LastManStanding)
         {
@@ -162,7 +167,7 @@ public class GameController : SingletonBehavior<GameController>
         }
         else if (GameInfo.GameMode == GameMode.Deathmatch)
         {
-            if (playerScores[playerIndex] >= GameInfo.DeathmatchFragGoal)
+            if (ScorePanels[playerIndex].Score >= GameInfo.DeathmatchFragGoal)
             {
                 this.State = PlayState.PostPlay;
             }
@@ -215,9 +220,13 @@ public class GameController : SingletonBehavior<GameController>
             var scoreSheet = (GameObject)Instantiate(ScoreSheetPrefab);
             scoreSheet.transform.parent = ScoreBase;
             scoreSheet.transform.localScale = Vector3.one;
-        }
 
-        playerScores = new int[players.Count];
+            ScorePanels[i].Color = playerInfo.Material.color;
+        }
+        for (int i = GameInfo.Players.Count; i < 4; i++)
+        {
+            ScorePanels[i].gameObject.SetActive(false);
+        }
     }
 
     void Start()
@@ -295,7 +304,7 @@ public class GameController : SingletonBehavior<GameController>
         for (int i = 0; i < players.Count; i++)
         {
             var playerColor = players[i].PlayerInfo.Material.color;
-            int score = playerScores[i];
+            int score = ScorePanels[i].Score;
 
             var scoreSheet = ScoreBase.GetChild(i).GetComponent<ScoreSheet>();
             scoreSheet.SetKills(playerColor, score);
