@@ -10,7 +10,7 @@ public enum PlayState
     Selection,
     PrePlay,
     Play,
-    Freeze,
+    BulletTime,
     PostPlay
 }
 
@@ -118,7 +118,7 @@ public class GameController : SingletonBehavior<GameController>
                         sphereTimer.ResetTimeLeft(ShootInterval);
                     }
                     break;
-                case PlayState.Freeze:
+                case PlayState.BulletTime:
                     Flasher.Flash();
 
                     Time.timeScale = DelayTimeScale;
@@ -247,8 +247,8 @@ public class GameController : SingletonBehavior<GameController>
         if (nextStateChangeTime < Time.fixedTime)
         {
             if (State == PlayState.Play)
-                this.State = PlayState.Freeze;
-            else if (State == PlayState.Freeze)
+                this.State = PlayState.BulletTime;
+            else if (State == PlayState.BulletTime)
                 this.State = PlayState.Play;
         }
 

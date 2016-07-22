@@ -94,9 +94,14 @@ public class Player : MonoBehaviour
         StartCoroutine(AimUpdate());
     }
 
+    bool jumpWasPressed = false;
+
     void Update()
     {
+        if (PlayerInfo == null)
+            return;
 
+        jumpWasPressed = PlayerInfo.PlayerActions.Jump.IsPressed;
     }
 
     void FixedUpdate()
@@ -111,11 +116,6 @@ public class Player : MonoBehaviour
                || state == PlayState.PostPlay)
         {
             GetComponent<Rigidbody>().velocity = Vector3.zero;
-        }
-
-        if (state == PlayState.PrePlay
-             || state == PlayState.PostPlay)
-        {
             return;
         }
 
@@ -123,7 +123,7 @@ public class Player : MonoBehaviour
 
         isGrounded = BottomChecker.IsCollidingWith("Wall") || BottomChecker.IsCollidingWith("Player");
 
-        if (isGrounded && playerInfo.PlayerActions.Jump.WasPressed)
+        if (isGrounded && jumpWasPressed)
         {
             jumpTimer = JumpTime;
         }
