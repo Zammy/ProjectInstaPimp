@@ -1,0 +1,3 @@
+[submodule "InstaPimp/Assets/Libs"]
+	path = InstaPimp/Assets/Libs
+	url = git@bitbucket.org:evgeni_petrov/projectinstapimpprivate.git
