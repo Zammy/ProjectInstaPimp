@@ -55,7 +55,7 @@ public class RailShot : MonoBehaviour
     private IEnumerator Kill(Player player)
     {
         yield return null;
-        GameController.Instance.PlayerKilledPlayer(this.Player, player);
+        OldGameGameController.Instance.PlayerKilledPlayer(this.Player, player);
     }
 
     private IEnumerator Die()

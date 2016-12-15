@@ -14,7 +14,7 @@ public enum PlayState
     PostPlay
 }
 
-public class GameController : SingletonBehavior<GameController>
+public class OldGameGameController : SingletonBehavior<OldGameGameController>
 {
     //UI
     public Text Announcer;

@@ -25,7 +25,7 @@ public class Player : MonoBehaviour
     float jumpTimer = float.MinValue;
 
     Transform railShotsBase;
-    GameController gameController;
+    OldGameGameController gameController;
 
     PlayerInfo playerInfo;
     public PlayerInfo PlayerInfo
@@ -85,7 +85,7 @@ public class Player : MonoBehaviour
         if (obj != null)
             railShotsBase = obj.transform;
 
-        this.gameController = GameController.Instance;
+        this.gameController = OldGameGameController.Instance;
     }
 
     void Start()
