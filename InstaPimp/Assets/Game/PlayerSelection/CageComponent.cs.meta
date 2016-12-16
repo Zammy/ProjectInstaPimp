@@ -1,6 +1,8 @@
 fileFormatVersion: 2
-guid: 198b8a71ef2144cde8b650cff866b982
-timeCreated: 1481904429
+guid: 9fe08857019b44480a2f8b57db72ff92
+labels:
+- Component
+timeCreated: 1481905477
 licenseType: Free
 MonoImporter:
   serializedVersion: 2

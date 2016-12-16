@@ -8,11 +8,27 @@
 //------------------------------------------------------------------------------
 public static class ComponentIds {
 
-    public const int TotalComponents = 0;
+    public const int ActionInput = 0;
+    public const int AimInput = 1;
+    public const int Cage = 2;
+    public const int MovementInput = 3;
+    public const int Player = 4;
+
+    public const int TotalComponents = 5;
 
     public static readonly string[] componentNames = {
+        "ActionInput",
+        "AimInput",
+        "Cage",
+        "MovementInput",
+        "Player"
     };
 
     public static readonly System.Type[] componentTypes = {
+        typeof(ActionInputComponent),
+        typeof(AimInputComponent),
+        typeof(CageComponent),
+        typeof(MovementInputComponent),
+        typeof(PlayerComponent)
     };
 }

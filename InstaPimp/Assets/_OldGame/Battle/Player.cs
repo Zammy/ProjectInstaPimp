@@ -90,7 +90,6 @@ public class Player : MonoBehaviour
 
     void Start()
     {
-        Debug.Log("Start");
         StartCoroutine(AimUpdate());
     }
 
