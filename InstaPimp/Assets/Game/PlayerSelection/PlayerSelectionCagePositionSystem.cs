@@ -11,12 +11,10 @@ public class PlayerSelectionCagePositionSystem : ISetPool, IReactiveSystem
         new float[] { -15, -5, 5, 15 },
     };
 
-//    Pool _pool;
     Group _cages;
 
     public void SetPool(Pool pool)
     {
-//        _pool = pool;
         _cages = pool.GetGroup(Matcher.Cage);
     }
 

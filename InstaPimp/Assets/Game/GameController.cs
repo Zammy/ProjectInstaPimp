@@ -31,8 +31,7 @@ public class GameController : MonoBehaviour
             .Add(pool.CreateSystem(new PlayerInputSystem()))
             .Add(pool.CreateSystem(new PlayerSelectionInputSystem()))
             .Add(pool.CreateSystem(new PlayerSelectionCagePositionSystem()))
-            .Add(pool.CreateSystem(new PlayerSelectionAddCageSystem()))
-            .Add(pool.CreateSystem(new PlayerSelectionRemoveCageSystem()))
+            .Add(pool.CreateSystem(new PlayerSelectionCreateCageSystem()))
             ;
     }
 }
