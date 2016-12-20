@@ -6,42 +6,45 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
+using Entitas;
+
 namespace Entitas {
 
     public partial class Entity {
 
-        public CageComponent cage { get { return (CageComponent)GetComponent(ComponentIds.Cage); } }
-        public bool hasCage { get { return HasComponent(ComponentIds.Cage); } }
+        public CageComponent cage { get { return (CageComponent)GetComponent(ObjectsComponentIds.Cage); } }
+        public bool hasCage { get { return HasComponent(ObjectsComponentIds.Cage); } }
 
-        public Entity AddCage(PlayerIndex newPlayerIndex, UnityEngine.GameObject newGameObject) {
-            var component = CreateComponent<CageComponent>(ComponentIds.Cage);
-            component.playerIndex = newPlayerIndex;
-            component.gameObject = newGameObject;
-            return AddComponent(ComponentIds.Cage, component);
+        public Entity AddCage(UnityEngine.GameObject newCageGo, UnityEngine.GameObject newPlayerGo) {
+            var component = CreateComponent<CageComponent>(ObjectsComponentIds.Cage);
+            component.cageGo = newCageGo;
+            component.playerGo = newPlayerGo;
+            return AddComponent(ObjectsComponentIds.Cage, component);
         }
 
-        public Entity ReplaceCage(PlayerIndex newPlayerIndex, UnityEngine.GameObject newGameObject) {
-            var component = CreateComponent<CageComponent>(ComponentIds.Cage);
-            component.playerIndex = newPlayerIndex;
-            component.gameObject = newGameObject;
-            ReplaceComponent(ComponentIds.Cage, component);
+        public Entity ReplaceCage(UnityEngine.GameObject newCageGo, UnityEngine.GameObject newPlayerGo) {
+            var component = CreateComponent<CageComponent>(ObjectsComponentIds.Cage);
+            component.cageGo = newCageGo;
+            component.playerGo = newPlayerGo;
+            ReplaceComponent(ObjectsComponentIds.Cage, component);
             return this;
         }
 
         public Entity RemoveCage() {
-            return RemoveComponent(ComponentIds.Cage);
+            return RemoveComponent(ObjectsComponentIds.Cage);
         }
     }
+}
 
-    public partial class Matcher {
+    public partial class ObjectsMatcher {
 
         static IMatcher _matcherCage;
 
         public static IMatcher Cage {
             get {
                 if(_matcherCage == null) {
-                    var matcher = (Matcher)Matcher.AllOf(ComponentIds.Cage);
-                    matcher.componentNames = ComponentIds.componentNames;
+                    var matcher = (Matcher)Matcher.AllOf(ObjectsComponentIds.Cage);
+                    matcher.componentNames = ObjectsComponentIds.componentNames;
                     _matcherCage = matcher;
                 }
 
@@ -49,4 +52,3 @@ namespace Entitas {
             }
         }
     }
-}

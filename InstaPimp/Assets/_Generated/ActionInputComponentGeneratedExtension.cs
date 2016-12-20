@@ -6,40 +6,43 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
+using Entitas;
+
 namespace Entitas {
 
     public partial class Entity {
 
-        public ActionInputComponent actionInput { get { return (ActionInputComponent)GetComponent(ComponentIds.ActionInput); } }
-        public bool hasActionInput { get { return HasComponent(ComponentIds.ActionInput); } }
+        public ActionInputComponent actionInput { get { return (ActionInputComponent)GetComponent(InputComponentIds.ActionInput); } }
+        public bool hasActionInput { get { return HasComponent(InputComponentIds.ActionInput); } }
 
-        public Entity AddActionInput(PlayerActionType newAction) {
-            var component = CreateComponent<ActionInputComponent>(ComponentIds.ActionInput);
-            component.action = newAction;
-            return AddComponent(ComponentIds.ActionInput, component);
+        public Entity AddActionInput(PlayerActionType newValue) {
+            var component = CreateComponent<ActionInputComponent>(InputComponentIds.ActionInput);
+            component.value = newValue;
+            return AddComponent(InputComponentIds.ActionInput, component);
         }
 
-        public Entity ReplaceActionInput(PlayerActionType newAction) {
-            var component = CreateComponent<ActionInputComponent>(ComponentIds.ActionInput);
-            component.action = newAction;
-            ReplaceComponent(ComponentIds.ActionInput, component);
+        public Entity ReplaceActionInput(PlayerActionType newValue) {
+            var component = CreateComponent<ActionInputComponent>(InputComponentIds.ActionInput);
+            component.value = newValue;
+            ReplaceComponent(InputComponentIds.ActionInput, component);
             return this;
         }
 
         public Entity RemoveActionInput() {
-            return RemoveComponent(ComponentIds.ActionInput);
+            return RemoveComponent(InputComponentIds.ActionInput);
         }
     }
+}
 
-    public partial class Matcher {
+    public partial class InputMatcher {
 
         static IMatcher _matcherActionInput;
 
         public static IMatcher ActionInput {
             get {
                 if(_matcherActionInput == null) {
-                    var matcher = (Matcher)Matcher.AllOf(ComponentIds.ActionInput);
-                    matcher.componentNames = ComponentIds.componentNames;
+                    var matcher = (Matcher)Matcher.AllOf(InputComponentIds.ActionInput);
+                    matcher.componentNames = InputComponentIds.componentNames;
                     _matcherActionInput = matcher;
                 }
 
@@ -47,4 +50,3 @@ namespace Entitas {
             }
         }
     }
-}

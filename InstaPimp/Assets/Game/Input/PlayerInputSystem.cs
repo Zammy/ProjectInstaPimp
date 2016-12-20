@@ -1,57 +1,64 @@
 ﻿using Entitas;
-using InControl;
-using System.Linq;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerInputSystem : ISetPool, IExecuteSystem
+public class PlayerInputSystem : ISetPools, IExecuteSystem, ICleanupSystem
 {
-    Pool _pool;
-    Group _players;
+    Pool _inputPool;
+    Group _playersActions;
 
-    public void SetPool(Pool pool)
+    public void SetPools(Pools pools)
     {
-        _pool = pool;
-        _players = pool.GetGroup(Matcher.Player);
+        _inputPool = pools.input;
+        _playersActions = pools.objects.GetGroup(ObjectsMatcher.PlayerActions);
     }
 
     public void Execute()
     {
-        if (_players.count == 0)
+        if (_playersActions.count == 0)
         {
             return;
         }
-              
-        var playersEntities = _players.GetEntities();
-        foreach (var player in playersEntities.Select(p => p.player))
+
+        var playersEntities = _playersActions.GetEntities();
+        foreach (var player in playersEntities)
         {
-            var playerActions = player.actions;
+            var playerActions = player.playerActions.value;
+            var playerIndex = player.playerIndex.value;
             var moveValue = playerActions.Move.Value;
             if (Mathf.Abs(moveValue) > Mathf.Epsilon)
             {
-                _pool.CreateEntity()
-                    .AddMovementInput(player.index, moveValue);
+                _inputPool.CreateEntity()
+                    .AddMovementInput(moveValue)
+                    .AddPlayerIndex(playerIndex);
             }
 
             var aimValue = playerActions.Aim.Value;
             if (Mathf.Abs(aimValue.sqrMagnitude) > Mathf.Epsilon)
             {
-                _pool.CreateEntity()
-                    .AddAimInput(aimValue);
+                //_inputPool.CreateEntity()
+                //    .ReplaceAimInput(aimValue);
             }
 
             if (playerActions.Jump.WasPressed)
             {
-                _pool.CreateEntity()
-                    .AddActionInput(PlayerActionType.Jump);
+                //_inputPool.CreateEntity()
+                //    .AddActionInput(PlayerActionType.Jump);
             }
-
 
             if (playerActions.Fire.WasPressed)
             {
-                _pool.CreateEntity()
-                    .AddActionInput(PlayerActionType.Fire);
+                //_inputPool.CreateEntity()
+                //    .AddActionInput(player.index, PlayerActionType.Fire);
             }
+        }
+    }
+
+    public void Cleanup()
+    {
+        var inputEntites = _inputPool.GetEntities();
+        for (int i = 0; i < inputEntites.Length; i++)
+        {
+            _inputPool.DestroyEntity(inputEntites[i]);
         }
     }
 }

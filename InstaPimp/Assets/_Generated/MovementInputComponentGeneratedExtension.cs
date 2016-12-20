@@ -6,42 +6,43 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
+using Entitas;
+
 namespace Entitas {
 
     public partial class Entity {
 
-        public MovementInputComponent movementInput { get { return (MovementInputComponent)GetComponent(ComponentIds.MovementInput); } }
-        public bool hasMovementInput { get { return HasComponent(ComponentIds.MovementInput); } }
+        public MovementInputComponent movementInput { get { return (MovementInputComponent)GetComponent(InputComponentIds.MovementInput); } }
+        public bool hasMovementInput { get { return HasComponent(InputComponentIds.MovementInput); } }
 
-        public Entity AddMovementInput(PlayerIndex newPlayerIndex, float newValue) {
-            var component = CreateComponent<MovementInputComponent>(ComponentIds.MovementInput);
-            component.playerIndex = newPlayerIndex;
+        public Entity AddMovementInput(float newValue) {
+            var component = CreateComponent<MovementInputComponent>(InputComponentIds.MovementInput);
             component.value = newValue;
-            return AddComponent(ComponentIds.MovementInput, component);
+            return AddComponent(InputComponentIds.MovementInput, component);
         }
 
-        public Entity ReplaceMovementInput(PlayerIndex newPlayerIndex, float newValue) {
-            var component = CreateComponent<MovementInputComponent>(ComponentIds.MovementInput);
-            component.playerIndex = newPlayerIndex;
+        public Entity ReplaceMovementInput(float newValue) {
+            var component = CreateComponent<MovementInputComponent>(InputComponentIds.MovementInput);
             component.value = newValue;
-            ReplaceComponent(ComponentIds.MovementInput, component);
+            ReplaceComponent(InputComponentIds.MovementInput, component);
             return this;
         }
 
         public Entity RemoveMovementInput() {
-            return RemoveComponent(ComponentIds.MovementInput);
+            return RemoveComponent(InputComponentIds.MovementInput);
         }
     }
+}
 
-    public partial class Matcher {
+    public partial class InputMatcher {
 
         static IMatcher _matcherMovementInput;
 
         public static IMatcher MovementInput {
             get {
                 if(_matcherMovementInput == null) {
-                    var matcher = (Matcher)Matcher.AllOf(ComponentIds.MovementInput);
-                    matcher.componentNames = ComponentIds.componentNames;
+                    var matcher = (Matcher)Matcher.AllOf(InputComponentIds.MovementInput);
+                    matcher.componentNames = InputComponentIds.componentNames;
                     _matcherMovementInput = matcher;
                 }
 
@@ -49,4 +50,3 @@ namespace Entitas {
             }
         }
     }
-}

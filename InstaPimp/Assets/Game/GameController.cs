@@ -1,8 +1,11 @@
 ﻿using Entitas;
+using Entitas.Unity.Serialization.Blueprints;
 using UnityEngine;
 
 public class GameController : MonoBehaviour 
 {
+    public Blueprints blueprints;
+
     Systems _systems;
 
     void Start() 
@@ -10,7 +13,9 @@ public class GameController : MonoBehaviour
         var pools = Pools.sharedInstance;
         pools.SetAllPools();
 
-        _systems = createSystems(pools.pool);
+        pools.settings.CreateEntity().ApplyBlueprint(blueprints.PlayerSettings);
+
+        _systems = createSystems(pools);
         _systems.Initialize();
     }
 
@@ -25,13 +30,14 @@ public class GameController : MonoBehaviour
         _systems.TearDown();
     }
 
-    Systems createSystems(Pool pool) 
+    Systems createSystems(Pools pool) 
     {
-        return new Feature("PlayerSelection")
-            .Add(pool.CreateSystem(new PlayerInputSystem()))
-            .Add(pool.CreateSystem(new PlayerSelectionInputSystem()))
-            .Add(pool.CreateSystem(new PlayerSelectionCagePositionSystem()))
-            .Add(pool.CreateSystem(new PlayerSelectionCreateCageSystem()))
+        return new Feature("Systems")
+            .Add(pool.input.CreateSystem(new PlayerInputSystem()))
+            .Add(pool.objects.CreateSystem(new PlayerSelectionInputSystem()))
+            .Add(pool.objects.CreateSystem(new PlayerSelectionCagePositionSystem()))
+            .Add(pool.objects.CreateSystem(new PlayerSelectionCreateCageSystem()))
+            .Add(pool.input.CreateSystem(new PlayerMovementSystem()))
             ;
     }
 }

@@ -6,29 +6,26 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-public static class ComponentIds {
+public static class ObjectsComponentIds {
 
-    public const int ActionInput = 0;
-    public const int AimInput = 1;
-    public const int Cage = 2;
-    public const int MovementInput = 3;
-    public const int Player = 4;
+    public const int PlayerIndex = 0;
+    public const int Cage = 1;
+    public const int PlayerActions = 2;
+    public const int View = 3;
 
-    public const int TotalComponents = 5;
+    public const int TotalComponents = 4;
 
     public static readonly string[] componentNames = {
-        "ActionInput",
-        "AimInput",
+        "PlayerIndex",
         "Cage",
-        "MovementInput",
-        "Player"
+        "PlayerActions",
+        "View"
     };
 
     public static readonly System.Type[] componentTypes = {
-        typeof(ActionInputComponent),
-        typeof(AimInputComponent),
+        typeof(PlayerIndexComponent),
         typeof(CageComponent),
-        typeof(MovementInputComponent),
-        typeof(PlayerComponent)
+        typeof(PlayerActionsComponent),
+        typeof(ViewComponent)
     };
 }

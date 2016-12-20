@@ -1,6 +1,7 @@
 ﻿using Entitas;
 
+[Input]
 public class ActionInputComponent : IComponent 
 {
-    public PlayerActionType action;
+    public PlayerActionType value;
 }

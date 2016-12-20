@@ -6,40 +6,43 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
+using Entitas;
+
 namespace Entitas {
 
     public partial class Entity {
 
-        public AimInputComponent aimInput { get { return (AimInputComponent)GetComponent(ComponentIds.AimInput); } }
-        public bool hasAimInput { get { return HasComponent(ComponentIds.AimInput); } }
+        public AimInputComponent aimInput { get { return (AimInputComponent)GetComponent(InputComponentIds.AimInput); } }
+        public bool hasAimInput { get { return HasComponent(InputComponentIds.AimInput); } }
 
         public Entity AddAimInput(UnityEngine.Vector2 newValue) {
-            var component = CreateComponent<AimInputComponent>(ComponentIds.AimInput);
+            var component = CreateComponent<AimInputComponent>(InputComponentIds.AimInput);
             component.value = newValue;
-            return AddComponent(ComponentIds.AimInput, component);
+            return AddComponent(InputComponentIds.AimInput, component);
         }
 
         public Entity ReplaceAimInput(UnityEngine.Vector2 newValue) {
-            var component = CreateComponent<AimInputComponent>(ComponentIds.AimInput);
+            var component = CreateComponent<AimInputComponent>(InputComponentIds.AimInput);
             component.value = newValue;
-            ReplaceComponent(ComponentIds.AimInput, component);
+            ReplaceComponent(InputComponentIds.AimInput, component);
             return this;
         }
 
         public Entity RemoveAimInput() {
-            return RemoveComponent(ComponentIds.AimInput);
+            return RemoveComponent(InputComponentIds.AimInput);
         }
     }
+}
 
-    public partial class Matcher {
+    public partial class InputMatcher {
 
         static IMatcher _matcherAimInput;
 
         public static IMatcher AimInput {
             get {
                 if(_matcherAimInput == null) {
-                    var matcher = (Matcher)Matcher.AllOf(ComponentIds.AimInput);
-                    matcher.componentNames = ComponentIds.componentNames;
+                    var matcher = (Matcher)Matcher.AllOf(InputComponentIds.AimInput);
+                    matcher.componentNames = InputComponentIds.componentNames;
                     _matcherAimInput = matcher;
                 }
 
@@ -47,4 +50,3 @@ namespace Entitas {
             }
         }
     }
-}

@@ -12,15 +12,15 @@ public class PlayerSelectionCreateCageSystem : ISetPool, IReactiveSystem
     public void SetPool(Pool pool)
     {
         _pool = pool;
-        _cages = pool.GetGroup(Matcher.Cage);
-        _players = pool.GetGroup(Matcher.Player);
+        _cages = pool.GetGroup(ObjectsMatcher.Cage);
+        _players = pool.GetGroup(ObjectsMatcher.PlayerActions);
     }
 
     public TriggerOnEvent trigger
     {
         get
         {
-            return Matcher.Player.OnEntityAddedOrRemoved();
+            return ObjectsMatcher.PlayerActions.OnEntityAddedOrRemoved();
         }
     }
 
@@ -30,26 +30,40 @@ public class PlayerSelectionCreateCageSystem : ISetPool, IReactiveSystem
         var cages = _cages.GetEntities();
         for (int i = 0; i < players.Length; i++)
         {
-            var player = players[i].player;
-            var cage = cages.FirstOrDefault<Entity>(c => c.cage.playerIndex == player.index);
-            if (cage == null)
+            var playerIndex = players[i].playerIndex.value;
+            var cageEnt = cages.FirstOrDefault<Entity>(c => c.playerIndex.value == playerIndex);
+            if (cageEnt == null)
             {
                 var prefab = Resources.Load<GameObject>(Res.PlayerCage);
                 var cageGo = (GameObject)UnityEngine.Object.Instantiate(prefab);
-                _pool.CreateEntity()
-                    .AddCage(player.index, cageGo);
+
+                prefab = Resources.Load<GameObject>(Res.Player);
+                var playerGo = (GameObject)UnityEngine.Object.Instantiate(prefab);
+
+                cageEnt = _pool.CreateEntity()
+                            .AddCage(cageGo, playerGo)
+                            .AddPlayerIndex(playerIndex);
+                cageGo.Link(cageEnt, _pool);
+
+                var viewController = playerGo.GetComponent<ViewController>();
+                var playerEnt = _pool.CreateEntity()
+                            .AddView(viewController)
+                            .AddPlayerIndex(playerIndex);
+                playerGo.Link(playerEnt, _pool);
             }
         }
 
         for (int i = 0; i < cages.Length; i++)
         {
             var cage = cages[i];
-            var player = players.FirstOrDefault<Entity>(p => p.player.index == cage.cage.playerIndex);
+            var player = players.FirstOrDefault<Entity>(p => p.playerIndex.value == cage.playerIndex.value);
             if (player == null)
             {
-                UnityEngine.GameObject.Destroy(cage.cage.gameObject);
+                UnityEngine.GameObject.Destroy(cage.cage.cageGo);
+                UnityEngine.GameObject.Destroy(cage.cage.playerGo);
                 _pool.DestroyEntity(cage);
             }
         }
     }
 }
+

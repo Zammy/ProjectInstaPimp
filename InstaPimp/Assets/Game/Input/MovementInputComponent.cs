@@ -1,7 +1,7 @@
 ﻿using Entitas;
 
+[Input]
 public class MovementInputComponent : IComponent
 {
-    public PlayerIndex playerIndex;
     public float value;
 }
